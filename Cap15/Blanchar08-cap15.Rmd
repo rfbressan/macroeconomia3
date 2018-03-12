@@ -1,0 +1,118 @@
+---
+title: "Exercício 8 - Blanchard Cap. 15"
+author: "Rafael F. Bressan"
+date: "15 de março de 2018"
+output: 
+  pdf_document:
+    includes:
+      in_header: header.tex
+    keep_tex: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(fig.pos = "Ht")
+```
+
+```{r inicio, include=FALSE}
+library(tis)
+library(tidyverse)
+library(ggthemes)
+library(tidyquantmod)
+
+start <- "1977-02-01"
+src <- "FRED"
+
+symbols <- c("CPIAUCSL", "GS1", "GS30")
+
+getSymbols(symbols, src = src, from = start)
+
+inf_m <- monthlyReturn(CPIAUCSL)
+colnames(inf_m) <- "inflation"
+inflation <- 100 * rollapply(inf_m, width = 12,  FUN = Return.cumulative)
+df <- merge(GS30, GS1, inflation, join = "inner")
+
+tidydf <- timetk::tk_tbl(df, rename_index = "date") %>% 
+  mutate(spread = GS30 - GS1) %>% 
+  gather(key = symbol, value = value, -date)
+
+# Recessions dates as of NBER. End of month.
+recessions <- as.tibble(nberDates()) %>%
+  transmute(start = as.Date(as.character(Start), format = "%Y%m%d"),
+            end = as.Date(as.character(End), format = "%Y%m%d") + days(1))
+```
+
+# Resolução do exercício número 8, capítulo 15 (Blanchard)
+
+a. _Como o FED pode reduzir a inflação? Como esta política afeta as taxas nominais de juros?_
+
+O FED pode se comprometer com uma política de desinflação. Se a autoridade 
+monetária tiver credibilidade, as expectativas de inflação devem se reduzir.
+As taxas de juros se elevam, pois deve existir uma redução na taxa de crescimento
+da moeda, o que leva a curva LM a se deslocar para a esquerda.
+
+b. _Para cada mês, plote a inflação acumulada nos últimos 12 meses e a taxa de juros de 1 ano._
+
+vide Figura 1.
+
+```{r b_ggplot, fig.cap="Inflação acumulada nos últimos 12 meses e taxa de juros esperadas para o próximo ano.\n*Nota: áreas sombreadas indicam períodos de recessão."}
+maxinf <- df[which(df$inflation == max(df$inflation)), ]
+# Index for recessions in mom_gather period
+idx <- which(recessions$start > tidydf$date[1])
+bplot <- tidydf %>% 
+  filter(symbol %in% c("inflation", "GS1")) %>% 
+  ggplot(aes(x = date, y = value, group = symbol)) +
+  geom_line(aes(colour = symbol)) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_economist() +
+  annotate("rect",
+            xmin = recessions$start[idx], xmax = recessions$end[idx],
+            ymin = -Inf, ymax = Inf,
+            alpha = 0.5) +
+  annotate("label", 
+           x = as.Date("1990-01-01"), y = 15,
+           label = paste("Maior Inflação\n", 
+                         round(max(df$inflation), 2), 
+                         "%\n",
+                         index(maxinf)),
+           alpha = 1)
+bplot
+```
+
+c. _Para cada mês, calcule o spread entre as taxas de 30 anos e de 1 ano. Plote no mesmo gráfico que a taxa de 1 ano._
+
+vide Figura 2.
+
+```{r c_ggplot, fig.cap="Spread entre as taxas de 30 anos e 1 ano e a própria taxa de 1 ano.\n*Nota: áreas sombreadas indicam períodos de recessão.\n**Nota: A série de 30 anos de maturidade constante foi descontinuada em 18 de fevereiro de 2002 e reintroduzida em 09 de fevereiro de 2006."}
+cplot <- tidydf %>% 
+  filter(symbol %in% c("GS1", "spread")) %>% 
+  ggplot(aes(x = date, y = value, group = symbol)) +
+  geom_line(aes(colour = symbol)) +
+  scale_x_date(date_breaks = "5 years", date_labels = "%Y") +
+  theme_economist() +
+  annotate("rect",
+            xmin = recessions$start[idx], xmax = recessions$end[idx],
+            ymin = -Inf, ymax = Inf,
+            alpha = 0.5)
+cplot
+```
+
+d. _O que implica um spread declinante sobre as expectativas dos participantes do mercado financeiro? Enquanto a inflação esta subindo ao longo dos anos 70, o que estava ocorrendo com a taxa de 1 ano? Os participantes do mercado financeiro estavam esperando continuidade nesta tendência?_
+
+Enquanto a inflação aumentava, as taxas de juros de 1 ano também estavam se elevando de acordo.
+
+A partir do momento em que o spread se torna negativo, pode-se afirmar que os participantes do mercado financeiro esperam uma queda nas taxas de juros de curto prazo. Como estas quedas vêm acompanhadas de recessões econômicas, podemos inferir que o mercado esperava uma recessão já antes de 1980.
+
+Como o mercado já estava esperando uma queda nas taxas curtas, não podemos dizer que os participantes esperavam que esta tendência de alta nos juros iria perdurar por muito mais tempo.
+
+e. _Utilizando o spread calculado em c. para outubro de 1979, você encontra alguma evidência da interpretação que o FED estava comprometido a combater a inflação?_
+
+Sim, em outubro de 1979 o spread entre a taxa de 30 anos e a taxa de 1 ano era de `r filter(tidydf, date == "1979-10-01" & symbol == "spread") %>% select(value)`\% o que configura a inversão da curva de rendimentos. A inversão desta curva sinaliza que os participantes do mercado esperam, além de uma recessão futura, uma redução da inflação que será acompanhada por redução nas taxas de juros de curto prazo.
+
+f. _Qual foi o efeito da política monetária expansionista adotada entre abril e julho de 1980 nas taxas de juros de 1 ano?_
+
+Esta troca na condução da política monetária resultou em rápida redução nas taxas de curto prazo, como pode ser visto na Figura 2.
+
+g. _De abril a julho de 1980, os mercados esperavam que esta queda nas taxas de juros de curto prazo se manteriam? Estas expectativas estavam corretas?_
+
+No mesmo momento em que o FED adotou a política monetária expansionista, o spread entre as taxas subitamente voltou ao terreno positivo, portanto a curva de rendimentos voltou a estar positivamente inclinada. Uma curva de rendimentos positivamente inclinada sinaliza expectativas de **aumento** das taxas de juros pelo mercado. Desta forma, não, o mercado não esperava que as taxas de juros de curto prazo se manteriam baixas por muito tempo. Estas expectativas se demonstraram corretas, pois logo depois o FED foi obrigado a novamente elevar suas taxas para combater a inflação e o spread novamente mergulhou para valores negativos.
