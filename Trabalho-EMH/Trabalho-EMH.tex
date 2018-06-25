@@ -1,0 +1,183 @@
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+% Modelo LaTex para preparação do documento final de Dissertação de Mestrado
+% O modelo está em conformidade com ABNT NBR 14724:2011: 
+% Programa de Pós-Graduação em Ciência da Computação
+% Universidade Federal do Piauí
+% Versão: v0.9
+% ---------------------------------------------------------------------------
+% ---------------------------------------------------------------------------
+
+\documentclass[
+	% -- opções da classe memoir --
+	%article,
+	12pt,					% tamanho da fonte
+	%openright,				% capítulos começam em pág ímpar (insere página vazia caso preciso)
+	oneside,					% para impressão em verso e anverso. Oposto a oneside
+	a4paper,					% tamanho do papel. 
+	]{memoir} %abntex2
+	
+% ---------------------
+% Pacotes OBRIGATÓRIOS
+% ---------------------
+\usepackage{lmodern}				% Usa a fonte Latin Modern			
+\usepackage[T1]{fontenc}			% Selecao de codigos de fonte.
+\usepackage[utf8]{inputenc}			% Codificacao do documento (conversão automática dos acentos)
+\usepackage{lastpage}				% Usado pela Ficha catalográfica
+\usepackage{indentfirst}			% Indenta o primeiro parágrafo de cada seção.
+\usepackage{hyperref} 				% controla a formação do índice
+\usepackage{graphicx}	       		% Inclusão de gráficos
+\usepackage{epsfig,subfig}			% Inclusão de figuras
+\usepackage{microtype} 				% Melhorias de justificação
+% ---------------------
+		
+% ---------------------
+% Pacotes ADICIONAIS
+% ---------------------
+\usepackage{lipsum}						% Geração de dummy text
+\usepackage{amsmath,amssymb,mathrsfs, amsthm}	% Comandos matemáticos avançados 
+\usepackage{setspace}  					% Para permitir espaçamento simples, 1 1/2 e duplo
+\usepackage{verbatim}					% Para poder usar o ambiente "comment"
+\usepackage{tabularx} 					% Para poder ter tabelas com colunas de largura auto-ajustável
+\usepackage{afterpage} 					% Para executar um comando depois do fim da página corrente
+\usepackage{url} 						% Para formatar URLs (endereços da Web)
+\usepackage{todonotes}  				% Lista de afazeres To-dos
+\usepackage{longtable}					% Tabela que ocupam mais de uma página
+\usepackage{booktabs}					% Melhora o estilo das tabelas
+\usepackage{float}						% Outras opções para ambientes flutuantes
+\usepackage{pagecolor}					% Controlar a cor da página
+% ---------------------
+
+% ---------- Babel e ajustes -------------
+\usepackage[brazil]{babel}		% idiomas
+\addto\captionsbrazil{
+	%% ajusta nomes padroes do babel
+	\renewcommand{\bibname}{Refer\^encias}
+	\renewcommand{\indexname}{\'Indice}
+	\renewcommand{\listfigurename}{Lista de ilustra\c{c}\~{o}es}
+	\renewcommand{\listtablename}{Lista de tabelas}
+	%% ajusta nomes usados com a macro \autoref
+	\renewcommand{\pageautorefname}{p\'agina}
+	\renewcommand{\sectionautorefname}{se{\c c}\~ao}
+	\renewcommand{\subsectionautorefname}{subse{\c c}\~ao}
+	\renewcommand{\paragraphautorefname}{par\'agrafo}
+	\renewcommand{\subsubsectionautorefname}{subse{\c c}\~ao}
+	\renewcommand{\paragraphautorefname}{subse{\c c}\~ao}
+} 
+
+% Definir a cor das páginas
+%\definecolor{ft}{HTML}{fff1e0}
+
+% ---------------------
+% Pacotes de CITAÇÕES
+% ---------------------
+\usepackage[brazilian,hyperpageref]{backref}	% Paginas com as citações na bibl
+\usepackage[alf]{abntex2cite}				% Citações padrão ABNT (alfa)
+%\usepackage[num]{abntex2cite}				% Citações padrão ABNT (numericas)
+% ---------------------
+
+% O tamanho da identação do parágrafo é dado por:
+\setlength{\parindent}{1.3cm}
+% A identação e margens de itemizações deve ser igual ao parágrafo
+\setlength{\leftmargini}{1.7cm}
+
+% Controle do espaçamento entre um parágrafo e outro:
+\setlength{\parskip}{0.2cm}  % tente também \onelineskip
+
+% ---------------------
+% Compila o indice
+% ---------------------
+\makeindex
+% ---------------------
+
+%------------------------------------------------------------------------
+% diretiva includeonly enquanto escreve o texto por capítulos
+%\includeonly{capitulos/introducao}
+%\includeonly{capitulos/fama}
+%\includeonly{capitulos/grossman}
+%\includeonly{capitulos/comportamental}
+%\includeonly{capitulos/testes}
+%\includeonly{capitulos/conclusao}
+
+\title{Hipótese de Mercados Eficientes: \\teoria e testes}
+\author{Gabriel Dias Medeiros Pereira \and Rafael Felipe Bressan}
+\date{28 de junho de 2018}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  INICIO DO DOCUMENTO  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+	\maketitle
+	
+	\pagenumbering{roman}
+% ---------------------
+% Compila a lista de afazeres
+% ---------------------
+%
+%\listoftodos
+% ---------------------
+
+% Retira espaço extra obsoleto entre as frases.
+%\frenchspacing
+
+% Ajusta a cor da página
+%\pagecolor{ft}
+
+% Lista de ilustrações
+%\pdfbookmark[0]{\listfigurename}{lof}
+%\listoffigures*
+%\cleardoublepage
+
+% Lista de tabelas
+%\pdfbookmark[0]{\listtablename}{lot}
+%\listoftables*
+%\cleardoublepage
+
+% Inserir o SUMÁRIO
+\newpage
+\pdfbookmark[0]{\contentsname}{toc}
+\tableofcontents*
+\cleardoublepage
+
+% ----------------------------------------------------------
+% ELEMENTOS TEXTUAIS (Capítulos)
+% ----------------------------------------------------------
+%\textual
+% Elementos textuais com numeração arábica
+\pagenumbering{arabic}
+% Reinicia a contagem do número de páginas
+\setcounter{page}{1}
+
+% Inclui cada capitulo da Dissertação
+
+\include{capitulos/introducao}
+\include{capitulos/fama}
+\include{capitulos/grossman}
+\include{capitulos/comportamental}
+\include{capitulos/gestao}
+%\include{capitulos/testes}
+\include{capitulos/conclusao}
+
+
+% ----------------------------------------------------------
+% ELEMENTOS PÓS-TEXTUAIS (Referências, Glossário, Apêndices)
+% ----------------------------------------------------------
+%\postextual
+
+% Referências bibliográficas
+\bibliography{library}
+
+% Glossário (Consulte o manual)
+%\glossary
+
+% Apêndices
+%\include{postextual/apendices}
+
+% Anexos
+%\include{postextual/anexos}
+
+% Índice remissivo (Consultar manual)
+%\phantompart
+%\printindex
+
+\end{document}
